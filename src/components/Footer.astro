@@ -1,0 +1,16 @@
+---
+import { logo } from '../lib/icons';
+---
+<footer class="mt-14 bg-forest text-white rounded-t-[3rem]">
+  <div class="max-w-6xl mx-auto px-4 pt-8 pb-3 flex flex-wrap items-center justify-between gap-4">
+    <p class="text-sm text-white/85">© {new Date().getFullYear()} جميع الحقوق محفوظة</p>
+    <div class="flex items-center gap-3">
+      <span class="leading-tight text-end">
+        <span class="block text-xl font-black">دليل الرحيبة الطبي</span>
+        <span class="block text-xs text-white/75">صحتك .. بين أيدٍ أمينة</span>
+      </span>
+      <Fragment set:html={logo(46, '#ffffff', '#0f6b4c')} />
+    </div>
+  </div>
+  <p class="max-w-6xl mx-auto px-4 pb-6 text-xs text-white/60">المعلومات المعروضة حسب البيانات المنشورة في الدليل.</p>
+</footer>

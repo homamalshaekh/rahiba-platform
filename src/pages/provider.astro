@@ -1,0 +1,87 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="تفاصيل | دليل الرحيبة الطبي">
+  <div class="max-w-xl mx-auto px-4 pt-6">
+    <button id="back" class="mb-3 text-brand font-semibold">‹ رجوع</button>
+    <article id="detail" class="rounded-3xl border border-mint-line bg-white overflow-hidden shadow-sm">
+      <p class="p-6 text-muted">جارٍ التحميل...</p>
+    </article>
+  </div>
+</Layout>
+
+<script>
+  import { supabase } from '../lib/supabase';
+  import { esc, tones } from '../lib/card';
+  import { svg } from '../lib/icons';
+
+  document.getElementById('back')!.addEventListener('click', () => history.back());
+  const box = document.getElementById('detail')!;
+
+  function row(icon: string, label: string, value: string) {
+    if (!value) return '';
+    return `<div class="flex items-start gap-3 py-4 border-b border-dashed border-ink/15">
+      <span class="text-xl leading-7">${icon}</span>
+      <p class="leading-7"><span class="font-bold">${label}:</span> <span class="text-ink/80">${esc(value)}</span></p>
+    </div>`;
+  }
+
+  function render(p: any) {
+    document.title = `${p.name} | دليل الرحيبة الطبي`;
+    const t = tones[p.type] ?? tones.doctor;
+    const inner = p.photo_url
+      ? `<img src="${esc(p.photo_url)}" alt="" class="size-full rounded-full object-cover">`
+      : `<span class="grid place-items-center size-full rounded-full bg-sky-400 text-white">${svg('user', 44)}</span>`;
+    const avatar = `<div class="relative shrink-0 size-24 rounded-full bg-emerald-100 p-2">
+      <div class="size-full rounded-full border-4 border-sky-500 bg-sky-100 overflow-hidden">${inner}</div>
+      <span class="absolute top-0 -end-1 grid place-items-center size-7 rounded-full bg-sky-500 text-white font-black border-2 border-white">+</span>
+    </div>`;
+
+    const where = [p.area, p.address].filter(Boolean).join('، ');
+    const notes = p.notes ?? '';
+    const more = notes.length > 90;
+    const info = notes ? `<div class="mx-5 mt-4 rounded-2xl border border-ink/10 bg-slate-50 p-4 flex items-start gap-3">
+        <span class="text-xl leading-7">ℹ️</span>
+        <p id="notes" class="grow leading-7 ${more ? 'line-clamp-2' : ''}"><span class="font-bold">معلومات إضافية:</span> <span class="text-ink/80">${esc(notes)}</span></p>
+        ${more ? `<button id="moreBtn" class="shrink-0 text-brand font-bold">عرض المزيد</button>` : ''}
+      </div>` : '';
+
+    const disc = p.has_discount ? row('⭐', 'خصم', p.discount_text || 'يقدّم خصمًا') : '';
+    const tel = p.phone ? `<a href="tel:${esc(p.phone)}" class="rounded-2xl bg-emerald-100 text-brand text-lg font-black py-4 text-center">اتصال 📞</a>` : '';
+    const wa = p.whatsapp ? `<a href="https://wa.me/${esc(p.whatsapp)}" target="_blank" rel="noopener" class="rounded-2xl bg-emerald-100 text-brand text-lg font-black py-4 text-center">واتساب 💬</a>` : '';
+    const maps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${p.name} ${where} الرحيبة`)}`;
+
+    box.innerHTML = `
+      <div class="bg-linear-to-b from-emerald-100/70 to-white p-5 flex items-center gap-4">
+        ${avatar}
+        <div class="min-w-0">
+          <h1 class="text-2xl font-black leading-snug">${esc(p.name)}</h1>
+          <p class="mt-2 font-bold text-brand">${esc(p.specialty || t.label)}</p>
+        </div>
+      </div>
+      <div class="px-5">
+        ${row('👨‍⚕️', 'الصفة المهنية', p.title)}
+        ${row('🏥', 'مكان العمل', p.workplace)}
+        ${row('📍', 'العنوان', where)}
+        ${disc}
+      </div>
+      ${info}
+      <div class="grid ${tel && wa ? 'grid-cols-2' : 'grid-cols-1'} gap-3 p-5">${tel}${wa}</div>
+      <a href="${maps}" target="_blank" rel="noopener" class="block text-center text-sm text-brand underline pb-5">افتح الموقع في خرائط جوجل</a>`;
+
+    document.getElementById('moreBtn')?.addEventListener('click', e => {
+      document.getElementById('notes')!.classList.remove('line-clamp-2');
+      (e.currentTarget as HTMLElement).remove();
+    });
+  }
+
+  async function init() {
+    const id = new URLSearchParams(location.search).get('id');
+    if (!id) { box.innerHTML = '<p class="p-6 text-muted">لم يتم تحديد الجهة.</p>'; return; }
+    const { data, error } = await supabase.from('providers').select('*')
+      .eq('id', id).eq('status', 'published').maybeSingle();
+    if (error || !data) { box.innerHTML = '<p class="p-6 text-muted">تعذّر العثور على هذه الجهة.</p>'; return; }
+    render(data);
+  }
+  init();
+</script>

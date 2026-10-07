@@ -1,0 +1,86 @@
+---
+const { type = '', disc = false, filters = true, specialty = false, title, intro } = Astro.props;
+const danger = type === 'emergency';
+---
+<section class={danger ? 'bg-alert text-white' : 'bg-linear-to-l from-forest to-brand text-white'}>
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-black">{title}</h1>
+    <p class="mt-2 text-white/85">{intro}</p>
+    {filters && <input id="q" type="search" class="field mt-5 max-w-xl" placeholder="اسم أو اختصاص أو عنوان" aria-label="بحث" />}
+  </div>
+</section>
+
+<slot />
+
+<section id="app" class="max-w-6xl mx-auto px-4 pt-6" data-type={type} data-disc={disc ? '1' : ''}>
+  {filters && (
+    <div class="grid gap-2 sm:grid-cols-2 max-w-xl">
+      {specialty ? <select id="specialty" class="field"><option value="">كل الاختصاصات</option></select> : null}
+      <input id="area" class="field" placeholder="المنطقة" aria-label="المنطقة" />
+    </div>
+  )}
+  <p id="count" class="mt-5 text-sm text-muted" role="status"></p>
+  <div id="list" class="mt-3 grid gap-3 md:grid-cols-2"></div>
+  <p id="empty" class="hidden text-center py-10 text-muted">لا توجد نتائج بعد. جرّب كلمة أخرى أو ألغِ أحد الفلاتر.</p>
+  <button id="more" class="hidden mx-auto mt-5 rounded-full bg-brand text-white px-8 py-2.5 font-semibold">عرض المزيد</button>
+</section>
+
+<script>
+  import { supabase } from '../lib/supabase';
+  import { normalize } from '../lib/arabic';
+  import { listCard, emergencyCard, esc } from '../lib/card';
+
+  const app = document.getElementById('app')!;
+  const type = app.dataset.type ?? '';
+  const params = new URLSearchParams(location.search);
+  const discOnly = app.dataset.disc === '1' || params.get('disc') === '1';
+  const el = (id: string) => document.getElementById(id) as any;
+  const PAGE = 20;
+  let all: any[] = [];
+  let shown = PAGE;
+
+  function render() {
+    const q = normalize(el('q')?.value);
+    const sp = el('specialty')?.value ?? '';
+    const area = normalize(el('area')?.value);
+    const res = all.filter(p =>
+      (!sp || p.specialty === sp) &&
+      (!area || normalize(`${p.area} ${p.address}`).includes(area)) &&
+      (!q || normalize(`${p.name} ${p.specialty} ${p.title} ${p.area} ${p.address}`).includes(q))
+    );
+    const draw = type === 'emergency' ? emergencyCard : listCard;
+    el('list').innerHTML = res.slice(0, shown).map(draw).join('');
+    el('count').textContent = res.length ? `${res.length} نتيجة` : '';
+    el('empty').classList.toggle('hidden', res.length > 0);
+    el('more').classList.toggle('hidden', res.length <= shown);
+  }
+
+  async function init() {
+    let query = supabase.from('providers').select('*').eq('status', 'published').order('name');
+    if (type) query = query.eq('type', type);
+    if (discOnly) query = query.eq('has_discount', true);
+
+    const { data, error } = await query;
+    if (error) {
+      console.error(error);
+      el('list').textContent = 'تعذّر تحميل البيانات: ' + error.message;
+      return;
+    }
+    all = data ?? [];
+
+    const specSel = el('specialty');
+    if (specSel) {
+      const specs = [...new Set(all.map(p => p.specialty).filter(Boolean))];
+      specSel.innerHTML += specs.map(s => `<option>${esc(s)}</option>`).join('');
+      if (params.get('sp')) specSel.value = params.get('sp');
+    }
+    if (el('q') && params.get('q')) el('q').value = params.get('q');
+    if (el('area') && params.get('area')) el('area').value = params.get('area');
+
+    ['q', 'specialty', 'area'].forEach(id =>
+      el(id)?.addEventListener('input', () => { shown = PAGE; render(); }));
+    el('more').addEventListener('click', () => { shown += PAGE; render(); });
+    render();
+  }
+  init();
+</script>

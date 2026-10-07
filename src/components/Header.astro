@@ -1,0 +1,53 @@
+---
+import { svg, logo } from '../lib/icons';
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const nav = [
+  ['/', 'الرئيسية'], ['/doctors', 'الأطباء'], ['/nurses', 'الممرضون'],
+  ['/physio', 'العلاج الفيزيائي'], ['/centers', 'المراكز الطبية'], ['/pharmacies', 'الصيدليات'],
+];
+---
+<div class="bg-forest text-white">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
+    <a href="/join" class="shrink-0 inline-flex items-center gap-2 rounded-full bg-white text-brand font-bold px-5 py-2.5 text-sm">
+      <Fragment set:html={svg('arrow-left', 18)} /> انضم للدليل
+    </a>
+    <svg viewBox="0 0 300 40" preserveAspectRatio="none" class="hidden md:block grow h-8 text-emerald-300/50" aria-hidden="true">
+      <path d="M0 20H110l10-14 14 28 12-22 8 8H300" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+    </svg>
+    <div class="min-w-0 ms-auto md:ms-0">
+      <div class="font-bold leading-tight">كن جزءًا من دليل الرحيبة الطبي</div>
+      <div class="hidden sm:block text-sm text-white/80">انضم الآن وأضف منشأتك أو عيادتك إلى الدليل</div>
+    </div>
+    <span class="hidden sm:grid place-items-center size-12 shrink-0 rounded-full bg-emerald-500 text-white">
+      <Fragment set:html={svg('user', 26)} />
+    </span>
+  </div>
+</div>
+
+<header class="bg-white border-b border-mint-line">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4 flex-wrap">
+    <a href="/" class="flex items-center gap-3">
+      <Fragment set:html={logo(46)} />
+      <span class="leading-tight">
+        <span class="block text-xl font-black">دليل الرحيبة الطبي</span>
+        <span class="block text-xs text-muted">صحتك .. بين أيدٍ أمينة</span>
+      </span>
+    </a>
+
+    <nav class="order-last w-full md:order-none md:w-auto md:ms-8 flex gap-6 overflow-x-auto" aria-label="القائمة الرئيسية">
+      {nav.map(([href, label]) => (
+        <a href={href} aria-current={path === href ? 'page' : undefined}
+           class="shrink-0 py-1 border-b-2 border-transparent font-semibold aria-[current=page]:text-brand aria-[current=page]:border-brand">
+          {label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="ms-auto flex items-center gap-3">
+      <span class="hidden sm:inline-flex items-center gap-2 rounded-full border border-mint-line px-3 py-1.5 text-sm">
+        <Fragment set:html={svg('pin', 16, 'text-brand')} /> الرحيبة <Fragment set:html={svg('chevron-down', 16)} />
+      </span>
+      <a href="/search" aria-label="بحث" class="text-ink"><Fragment set:html={svg('search', 22)} /></a>
+    </div>
+  </div>
+</header>

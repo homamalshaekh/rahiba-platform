@@ -1,0 +1,55 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="طلب الانضمام | دليل الرحيبة">
+  <section class="bg-enamel text-white">
+    <div class="max-w-xl mx-auto px-4 py-8">
+      <h1 class="font-display font-extrabold text-3xl">انضم إلى الدليل</h1>
+      <p class="mt-2 text-white/80">نراجع كل طلب قبل نشره.</p>
+    </div>
+  </section>
+
+  <section class="max-w-xl mx-auto px-4 pt-8 grid gap-5">
+    <label class="grid gap-1"><span class="font-semibold">الاسم</span>
+      <input id="name" class="field" autocomplete="name" /></label>
+    <label class="grid gap-1"><span class="font-semibold">نوع الجهة</span>
+      <select id="type" class="field">
+        <option value="doctor">طبيب</option>
+        <option value="pharmacy">صيدلية</option>
+        <option value="center">مركز أو نقطة طبية</option>
+        <option value="nurse">ممرض / ممرضة</option>
+<option value="physio">معالج فيزيائي</option>
+      </select></label>
+    <label class="grid gap-1"><span class="font-semibold">الاختصاص</span>
+      <input id="specialty" class="field" /></label>
+    <label class="grid gap-1"><span class="font-semibold">رقم الهاتف</span>
+      <input id="phone" class="field" type="tel" inputmode="tel" /></label>
+    <label class="grid gap-1"><span class="font-semibold">العنوان</span>
+      <input id="address" class="field" /></label>
+    <label class="grid gap-1"><span class="font-semibold">ملاحظات</span>
+      <textarea id="notes" rows="3" class="field"></textarea></label>
+
+    <button id="send" class="rounded-md bg-enamel text-white font-bold py-3 disabled:opacity-60">أرسل الطلب</button>
+    <p id="msg" role="status" class="font-semibold"></p>
+  </section>
+</Layout>
+
+<script>
+  import { supabase } from '../lib/supabase';
+  const v = (id: string) => (document.getElementById(id) as HTMLInputElement).value.trim();
+  const btn = document.getElementById('send') as HTMLButtonElement;
+  const msg = document.getElementById('msg')!;
+
+  btn.addEventListener('click', async () => {
+    if (!v('name') || !v('phone')) { msg.textContent = 'الاسم ورقم الهاتف مطلوبان.'; return; }
+    btn.disabled = true;
+    const { error } = await supabase.from('join_requests').insert({
+      name: v('name'), type: v('type'), specialty: v('specialty'),
+      phone: v('phone'), address: v('address'), notes: v('notes'),
+    });
+    btn.disabled = false;
+    msg.textContent = error
+      ? 'تعذّر إرسال الطلب. تحقق من الاتصال وحاول مرة أخرى.'
+      : 'تم إرسال الطلب. سنراجعه وننشره بعد التأكد.';
+  });
+</script>

@@ -1,0 +1,48 @@
+---
+import { svg } from '../lib/icons';
+---
+<section class="max-w-6xl mx-auto px-4 pt-6">
+  <div class="rounded-2xl border border-mint-line bg-mint/60 p-4 md:p-5">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h2 class="flex items-center gap-2 text-xl md:text-2xl font-black">
+          <Fragment set:html={svg('grid', 24, 'text-brand')} /> الصيدليات المناوبة اليوم
+        </h2>
+        <p class="mt-1 text-muted">بإمكانك العثور على أقرب صيدلية مناوبة في مدينة الرحيبة</p>
+        <p id="dutyDate" class="text-sm text-muted"></p>
+      </div>
+      <a href="/pharmacies" class="shrink-0 inline-flex items-center gap-1 rounded-full bg-emerald-100 text-brand font-semibold px-4 py-1.5">
+        عرض الكل <Fragment set:html={svg('chevron-left', 18)} />
+      </a>
+    </div>
+    <div id="dutyList" class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
+    <p id="dutyEmpty" class="hidden mt-4 rounded-xl border border-dashed border-mint-line bg-white p-4 text-muted">
+      لم تُنشر مناوبات اليوم بعد. تصفّح كل الصيدليات أو اتصل بها مباشرة.
+    </p>
+  </div>
+</section>
+
+<script>
+  import { supabase } from '../lib/supabase';
+  import { dutyCard } from '../lib/card';
+
+  const now = new Date();
+  const today = now.toLocaleDateString('en-CA');
+  document.getElementById('dutyDate')!.textContent =
+    now.toLocaleDateString('ar', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  async function loadDuty() {
+    const { data, error } = await supabase
+      .from('duty_shifts').select('note, providers(*)').eq('duty_date', today);
+    const empty = document.getElementById('dutyEmpty')!;
+    if (error) { console.error(error); empty.classList.remove('hidden'); return; }
+
+    const rows = (data ?? [])
+      .map((r: any) => ({ p: Array.isArray(r.providers) ? r.providers[0] : r.providers, note: r.note }))
+      .filter(r => r.p && r.p.status === 'published');
+
+    document.getElementById('dutyList')!.innerHTML = rows.map((r, i) => dutyCard(r.p, i, r.note)).join('');
+    empty.classList.toggle('hidden', rows.length > 0);
+  }
+  loadDuty();
+</script>

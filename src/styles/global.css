@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest: #0b4a36;
+  --color-brand: #0f6b4c;
+  --color-mint: #eef8f2;
+  --color-mint-line: #cfe6da;
+  --color-ink: #10281f;
+  --color-muted: #5f7369;
+  --color-azure: #1f56c4;
+  --color-azure-soft: #eef4ff;
+  --color-azure-line: #bcd0f5;
+  --color-alert: #d92d20;
+  --color-alert-soft: #fff1f0;
+  --color-alert-line: #f4b9b4;
+  --font-sans: "Cairo", sans-serif;
+  --font-script: "Aref Ruqaa", serif;
+  /* توافق مع صفحة join الحالية */
+  --color-enamel: #0f6b4c;
+  --font-display: "Cairo", sans-serif;
+}
+
+html { background: #fff; color: var(--color-ink); }
+:focus-visible { outline: 3px solid var(--color-brand); outline-offset: 2px; }
+
+@layer components {
+  .field {
+    width: 100%;
+    background: #fff;
+    color: var(--color-ink);
+    border: 1.5px solid var(--color-mint-line);
+    border-radius: 12px;
+    padding: .7rem 1rem;
+    font-size: 1rem;
+  }
+  .field:focus { border-color: var(--color-brand); }
+}
