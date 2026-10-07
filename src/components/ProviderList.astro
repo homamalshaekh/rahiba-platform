@@ -6,7 +6,7 @@ const danger = type === 'emergency';
   <div class="max-w-6xl mx-auto px-4 py-8">
     <h1 class="text-3xl font-black">{title}</h1>
     <p class="mt-2 text-white/85">{intro}</p>
-    {filters && <input id="q" type="search" class="field mt-5 max-w-xl" placeholder="اسم أو اختصاص أو عنوان" aria-label="بحث" />}
+    {filters && <input id="q" type="search" class="field mt-5 max-w-xl" placeholder="ابحث..." aria-label="بحث" />}
   </div>
 </section>
 
@@ -16,7 +16,7 @@ const danger = type === 'emergency';
   {filters && (
     <div class="grid gap-2 sm:grid-cols-2 max-w-xl">
       {specialty ? <select id="specialty" class="field"><option value="">كل الاختصاصات</option></select> : null}
-      <input id="area" class="field" placeholder="المنطقة" aria-label="المنطقة" />
+      
     </div>
   )}
   <p id="count" class="mt-5 text-sm text-muted" role="status"></p>
