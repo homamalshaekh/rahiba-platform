@@ -1,55 +1,301 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+const kinds = [
+  { key: 'doctor_m', label: 'طبيب',          emoji: '👨‍⚕️' },
+  { key: 'doctor_f', label: 'طبيبة',         emoji: '👩‍⚕️' },
+  { key: 'nurse_m',  label: 'ممرض',          emoji: '👨‍⚕️' },
+  { key: 'nurse_f',  label: 'ممرضة',         emoji: '👩‍⚕️' },
+  { key: 'physio',   label: 'معالج فيزيائي', emoji: '🧑‍⚕️' },
+  { key: 'pharmacy', label: 'صيدلية',        emoji: '💊' },
+  { key: 'center',   label: 'مركز طبي',      emoji: '🏥' },
+];
+
+const specialties = [
+  'طب القلب', 'طب الأطفال', 'الأمراض الباطنية', 'الجراحة العامة', 'النسائية والتوليد',
+  'طب العيون', 'الأنف والأذن والحنجرة', 'الجراحة العظمية', 'الأمراض الجلدية', 'الجراحة البولية',
+  'الأمراض العصبية', 'الأمراض النفسية', 'التخدير والإنعاش', 'الأشعة والتصوير الطبي',
+  'الغدد الصماء والسكري', 'الجهاز الهضمي', 'الأمراض الصدرية', 'الأمراض الكلوية', 'الأورام',
+  'جراحة الأوعية الدموية', 'جراحة الأعصاب', 'الجراحة التجميلية', 'جراحة الأطفال', 'طب الأسرة',
+  'الطب الإسعافي', 'أمراض الدم', 'الأمراض الرثوية والمفاصل', 'الأمراض الإنتانية', 'طب الأسنان',
+  'تقويم الأسنان', 'الطب الفيزيائي والتأهيل', 'حديثو الولادة', 'التغذية العلاجية',
+];
 ---
-<Layout title="طلب الانضمام | دليل الرحيبة">
-  <section class="bg-enamel text-white">
+<Layout title="طلب الانضمام | دليل الرحيبة الطبي">
+  <section class="bg-linear-to-l from-forest to-brand text-white">
     <div class="max-w-xl mx-auto px-4 py-8">
-      <h1 class="font-display font-extrabold text-3xl">انضم إلى الدليل</h1>
-      <p class="mt-2 text-white/80">نراجع كل طلب قبل نشره.</p>
+      <h1 class="text-3xl font-black">انضم إلى الدليل</h1>
+      <p class="mt-2 text-white/85">نراجع كل طلب قبل نشره.</p>
     </div>
   </section>
 
-  <section class="max-w-xl mx-auto px-4 pt-8 grid gap-5">
-    <label class="grid gap-1"><span class="font-semibold">الاسم</span>
-      <input id="name" class="field" autocomplete="name" /></label>
-    <label class="grid gap-1"><span class="font-semibold">نوع الجهة</span>
-      <select id="type" class="field">
-        <option value="doctor">طبيب</option>
-        <option value="pharmacy">صيدلية</option>
-        <option value="center">مركز أو نقطة طبية</option>
-        <option value="nurse">ممرض / ممرضة</option>
-<option value="physio">معالج فيزيائي</option>
-      </select></label>
-    <label class="grid gap-1"><span class="font-semibold">الاختصاص</span>
-      <input id="specialty" class="field" /></label>
-    <label class="grid gap-1"><span class="font-semibold">رقم الهاتف</span>
-      <input id="phone" class="field" type="tel" inputmode="tel" /></label>
-    <label class="grid gap-1"><span class="font-semibold">العنوان</span>
-      <input id="address" class="field" /></label>
-    <label class="grid gap-1"><span class="font-semibold">ملاحظات</span>
-      <textarea id="notes" rows="3" class="field"></textarea></label>
+  <form id="joinForm" novalidate class="max-w-xl mx-auto px-4 pt-6">
+    <div class="rounded-3xl border border-mint-line bg-white p-5 grid gap-5">
+      <h2 class="text-2xl font-black">بيانات مقدم الطلب</h2>
 
-    <button id="send" class="rounded-md bg-enamel text-white font-bold py-3 disabled:opacity-60">أرسل الطلب</button>
-    <p id="msg" role="status" class="font-semibold"></p>
-  </section>
+      <label class="grid gap-2">
+        <span class="font-bold">الاسم الكامل <b class="text-alert">*</b></span>
+        <input id="name" class="field rounded-2xl" placeholder="الاسم الكامل" autocomplete="name" />
+      </label>
+
+      <label class="grid gap-2">
+        <span class="font-bold">الصفة المهنية <b class="text-alert">*</b></span>
+        <input id="title" class="field rounded-2xl" placeholder="مثال: طبيب اختصاص قلب وأطفال، ممرض..." />
+        <small class="text-sm text-muted">هذه هي الصفة التي ستظهر في الدليل بعد اعتماد الطلب.</small>
+      </label>
+
+      <label id="genderRow" class="grid gap-2">
+        <span class="font-bold">الجنس <b class="text-alert">*</b></span>
+        <select id="gender" class="field rounded-2xl">
+          <option value="">اختر الجنس</option>
+          <option value="ذكر">ذكر</option>
+          <option value="أنثى">أنثى</option>
+        </select>
+      </label>
+
+      <fieldset class="rounded-2xl border border-mint-line bg-mint/60 p-4">
+        <legend class="px-1 font-bold">🖼️ الصورة الرمزية للمهنة <b class="text-alert">*</b></legend>
+        <p class="text-sm text-muted">اختر الأيقونة التي تمثل مهنتك، وسيتم نقل اختيارك إلى نموذج الإدارة.</p>
+        <div id="kinds" class="mt-3 grid grid-cols-2 gap-3">
+          {kinds.map(k => (
+            <button type="button" data-kind={k.key} aria-pressed="false"
+              class="last:col-span-2 flex items-center justify-center gap-3 rounded-2xl border-2 border-mint-line bg-white px-3 py-4 font-bold aria-pressed:border-brand aria-pressed:bg-emerald-50">
+              <span class="text-3xl">{k.emoji}</span>{k.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <div class="grid gap-2">
+        <span class="font-bold">الاختصاص</span>
+        <input id="spSearch" type="search" class="field rounded-2xl" placeholder="🔎 ابحث عن الاختصاص..." aria-label="ابحث عن الاختصاص" />
+        <select id="specialty" class="field rounded-2xl" aria-label="الاختصاص">
+          <option value="">اختر الاختصاص</option>
+          {specialties.map(s => <option value={s}>{s}</option>)}
+        </select>
+        <small id="spCount" class="text-sm text-muted">عدد الاختصاصات: {specialties.length}</small>
+        <small class="text-sm text-muted">يتم اختيار الاختصاص من قائمة الاختصاصات المعتمدة في المنصة.</small>
+      </div>
+
+      <label class="grid gap-2">
+        <span class="font-bold">رقم الهاتف <b class="text-alert">*</b></span>
+        <input id="phone" type="tel" inputmode="tel" class="field rounded-2xl" placeholder="مثال: 0935059474" />
+      </label>
+
+      <div class="grid gap-2">
+        <span class="font-bold">رقم واتساب <b class="text-alert">*</b></span>
+        <div dir="ltr" class="flex overflow-hidden rounded-2xl border-[1.5px] border-mint-line bg-white focus-within:border-brand">
+          <span class="grid place-items-center bg-slate-100 px-6 font-black">+963 9</span>
+          <input id="whatsapp" type="tel" inputmode="tel" dir="rtl"
+            class="min-w-0 grow bg-transparent px-4 py-3 text-right" placeholder="أدخل رقم الجوال" aria-label="رقم واتساب" />
+        </div>
+        <small class="text-sm text-muted">اكتب الرقم كاملًا مثل 0935059474 أو الأرقام بعد 9 فقط.</small>
+      </div>
+
+      <label class="grid gap-2">
+        <span class="font-bold">اسم العيادة / مكان العمل</span>
+        <input id="workplace" class="field rounded-2xl" placeholder="اسم العيادة أو الصيدلية أو المركز" />
+      </label>
+
+      <label class="grid gap-2">
+        <span class="font-bold">العنوان</span>
+        <input id="address" class="field rounded-2xl" placeholder="الحي / الشارع / وصف المكان" />
+      </label>
+
+      <div class="rounded-2xl border border-mint-line bg-mint/60 p-4 grid gap-3">
+        <h3 class="text-lg font-black">🕒 أوقات العمل</h3>
+        <p class="text-sm text-muted">حدد وقت الدوام، ويمكنك تطبيقه على جميع أيام الأسبوع ثم مسح أيام العطلة أو تعديل أي يوم بشكل مستقل.</p>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="grid gap-1"><span class="text-sm font-bold">من</span>
+            <select id="allFrom" data-ph="من" class="time field rounded-2xl"></select></label>
+          <label class="grid gap-1"><span class="text-sm font-bold">إلى</span>
+            <select id="allTo" data-ph="إلى" class="time field rounded-2xl"></select></label>
+        </div>
+        <button type="button" id="applyAll" class="rounded-2xl bg-brand py-3 font-black text-white">تطبيق على جميع الأيام</button>
+
+        <div class="mt-1 grid gap-3">
+          {days.map(d => (
+            <div data-day={d} class="rounded-2xl border border-mint-line bg-white p-3">
+              <div class="font-bold">{d}</div>
+              <div class="mt-2 flex gap-2">
+                <select data-role="from" data-ph="من" aria-label={`${d} من`} class="time field min-w-0 flex-1 rounded-2xl"></select>
+                <select data-role="to" data-ph="إلى" aria-label={`${d} إلى`} class="time field min-w-0 flex-1 rounded-2xl"></select>
+                <button type="button" data-role="clear" class="shrink-0 rounded-2xl bg-slate-100 px-4 font-semibold text-muted">مسح</button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p class="text-sm text-muted">اترك اليوم فارغًا إذا كان يوم عطلة أو لا يوجد فيه دوام.</p>
+      </div>
+
+      <label class="grid gap-2">
+        <span class="text-lg font-black">معلومات إضافية</span>
+        <textarea id="notes" rows="5" class="field rounded-2xl" placeholder="أي معلومات أخرى ترغب بإضافتها"></textarea>
+      </label>
+
+      <input type="text" id="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" />
+
+      <button id="send" type="submit"
+        class="rounded-2xl bg-linear-to-l from-forest to-brand py-4 text-lg font-black text-white disabled:opacity-60">
+        إرسال طلب الانضمام
+      </button>
+      <p id="msg" role="status" class="font-bold"></p>
+    </div>
+  </form>
 </Layout>
 
 <script>
   import { supabase } from '../lib/supabase';
-  const v = (id: string) => (document.getElementById(id) as HTMLInputElement).value.trim();
-  const btn = document.getElementById('send') as HTMLButtonElement;
-  const msg = document.getElementById('msg')!;
+  import { normalize } from '../lib/arabic';
 
-  btn.addEventListener('click', async () => {
-    if (!v('name') || !v('phone')) { msg.textContent = 'الاسم ورقم الهاتف مطلوبان.'; return; }
+  const $ = (id: string) => document.getElementById(id) as any;
+
+  // ---------- نوع الجهة / الأيقونة ----------
+  const KINDS: Record<string, { type: string; gender: string }> = {
+    doctor_m: { type: 'doctor',   gender: 'ذكر' },
+    doctor_f: { type: 'doctor',   gender: 'أنثى' },
+    nurse_m:  { type: 'nurse',    gender: 'ذكر' },
+    nurse_f:  { type: 'nurse',    gender: 'أنثى' },
+    physio:   { type: 'physio',   gender: '' },
+    pharmacy: { type: 'pharmacy', gender: '' },
+    center:   { type: 'center',   gender: '' },
+  };
+  let kind = 'doctor_m';
+
+  function isPerson() {
+    return !['pharmacy', 'center'].includes(KINDS[kind].type);
+  }
+  function setKind(k: string) {
+    kind = k;
+    document.querySelectorAll<HTMLButtonElement>('#kinds button').forEach(b =>
+      b.setAttribute('aria-pressed', String(b.dataset.kind === k)));
+    $('genderRow').classList.toggle('hidden', !isPerson());
+    $('gender').value = KINDS[k].gender;
+  }
+  document.querySelectorAll<HTMLButtonElement>('#kinds button').forEach(b =>
+    b.addEventListener('click', () => setKind(b.dataset.kind!)));
+  setKind('doctor_m');
+
+  // ---------- بحث الاختصاص ----------
+  const specialty = $('specialty') as HTMLSelectElement;
+  const allSpecs = Array.from(specialty.options).slice(1).map(o => o.value);
+  function fillSpecialties() {
+    const q = normalize($('spSearch').value);
+    const keep = specialty.value;
+    const list = allSpecs.filter(s => !q || normalize(s).includes(q));
+    specialty.length = 1;
+    list.forEach(s => specialty.add(new Option(s, s)));
+    if (list.includes(keep)) specialty.value = keep;
+    $('spCount').textContent = `عدد الاختصاصات: ${list.length}`;
+  }
+  $('spSearch').addEventListener('input', fillSpecialties);
+
+  // ---------- أوقات العمل ----------
+  const times: string[] = [];
+  for (let h = 0; h < 24; h++) {
+    for (const m of ['00', '30']) {
+      times.push(`${String(h % 12 || 12).padStart(2, '0')}:${m} ${h < 12 ? 'ص' : 'م'}`);
+    }
+  }
+  document.querySelectorAll<HTMLSelectElement>('select.time').forEach(sel => {
+    sel.add(new Option(sel.dataset.ph ?? '', ''));
+    times.forEach(t => sel.add(new Option(t, t)));
+  });
+
+  const sel = (row: Element, role: string) => row.querySelector(`[data-role="${role}"]`) as HTMLSelectElement;
+
+  $('applyAll').addEventListener('click', () => {
+    if (!$('allFrom').value || !$('allTo').value) { show('اختر وقت البداية والنهاية أولًا.', false); return; }
+    document.querySelectorAll('[data-day]').forEach(row => {
+      sel(row, 'from').value = $('allFrom').value;
+      sel(row, 'to').value = $('allTo').value;
+    });
+  });
+  document.querySelectorAll<HTMLButtonElement>('[data-role="clear"]').forEach(b =>
+    b.addEventListener('click', () => {
+      b.closest('[data-day]')!.querySelectorAll('select').forEach(s => (s.value = ''));
+    }));
+
+  function collectHours(): { error?: string; hours: { day: string; time: string }[] } {
+    const hours: { day: string; time: string }[] = [];
+    for (const row of document.querySelectorAll<HTMLElement>('[data-day]')) {
+      const f = sel(row, 'from').value, t = sel(row, 'to').value;
+      if (!f && !t) continue;
+      if (!f || !t) return { error: `أكمل وقت البداية والنهاية ليوم ${row.dataset.day}.`, hours: [] };
+      hours.push({ day: row.dataset.day!, time: `${f} - ${t}` });
+    }
+    return { hours };
+  }
+
+  // ---------- الأرقام ----------
+  const toLatin = (s: string) => s.replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632));
+
+  function cleanPhone(s: string) {
+    const p = toLatin(s).replace(/[\s\-().]/g, '');
+    return /^\+?\d{6,15}$/.test(p) ? p : null;
+  }
+  function cleanWhatsapp(s: string) {
+    let d = toLatin(s).replace(/\D/g, '');
+    if (d.startsWith('00963')) d = d.slice(5);
+    else if (d.startsWith('963')) d = d.slice(3);
+    if (d.startsWith('0')) d = d.slice(1);
+    if (d.length === 9 && d.startsWith('9')) d = d.slice(1);
+    return /^\d{8}$/.test(d) ? '9639' + d : null;
+  }
+
+  // ---------- الإرسال ----------
+  function show(text: string, ok: boolean) {
+    const m = $('msg');
+    m.textContent = text;
+    m.className = 'font-bold ' + (ok ? 'text-brand' : 'text-alert');
+    m.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
+  $('joinForm').addEventListener('submit', async (e: Event) => {
+    e.preventDefault();
+    if ($('website').value) return; // فخّ للبوتات
+
+    const name = $('name').value.trim();
+    const title = $('title').value.trim();
+    const gender = $('gender').value;
+    const phone = cleanPhone($('phone').value);
+    const whatsapp = cleanWhatsapp($('whatsapp').value);
+    const h = collectHours();
+
+    if (!name) return show('الاسم الكامل مطلوب.', false);
+    if (!title) return show('الصفة المهنية مطلوبة.', false);
+    if (isPerson() && !gender) return show('اختر الجنس.', false);
+    if (!phone) return show('رقم الهاتف غير صحيح.', false);
+    if (!whatsapp) return show('رقم واتساب غير صحيح. مثال: 0935059474', false);
+    if (h.error) return show(h.error, false);
+
+    const btn = $('send') as HTMLButtonElement;
     btn.disabled = true;
     const { error } = await supabase.from('join_requests').insert({
-      name: v('name'), type: v('type'), specialty: v('specialty'),
-      phone: v('phone'), address: v('address'), notes: v('notes'),
+      name,
+      type: KINDS[kind].type,
+      icon: kind,
+      title,
+      gender: gender || null,
+      specialty: specialty.value || null,
+      phone,
+      whatsapp,
+      workplace: $('workplace').value.trim() || null,
+      address: $('address').value.trim() || null,
+      hours: h.hours.length ? h.hours : null,
+      notes: $('notes').value.trim() || null,
     });
     btn.disabled = false;
-    msg.textContent = error
-      ? 'تعذّر إرسال الطلب. تحقق من الاتصال وحاول مرة أخرى.'
-      : 'تم إرسال الطلب. سنراجعه وننشره بعد التأكد.';
+
+    if (error) {
+      console.error(error);
+      return show('تعذّر إرسال الطلب. تحقق من الاتصال وحاول مرة أخرى.', false);
+    }
+    ($('joinForm') as HTMLFormElement).reset();
+    setKind('doctor_m');
+    fillSpecialties();
+    show('تم إرسال الطلب. سنراجعه وننشره بعد التأكد.', true);
   });
 </script>
