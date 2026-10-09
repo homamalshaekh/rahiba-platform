@@ -34,4 +34,7 @@ html { background: #fff; color: var(--color-ink); }
     font-size: 1rem;
   }
   .field:focus { border-color: var(--color-brand); }
+  /* وضع ما قبل الإطلاق: احذف هذه الأسطر يوم الإطلاق */
+header nav,
+header .ms-auto { display: none; }
 }
